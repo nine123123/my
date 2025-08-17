@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>🔮 ดูดวงตามวันเกิด | Horoscope by Birthday</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="เว็บดูดวงตามวันเกิด เลือกวัน/เดือน/ปีเกิด แล้วรับคำทำนายแยกด้าน: บุคลิกภาพ การงาน การเงิน ความรัก และสุขภาพ พร้อมแชร์ลง LINE/Facebook ได้ทันที">
+  <meta name="theme-color" content="#ff6699">
+
+  <!-- Open Graph (สำหรับแชร์โซเชียล) -->
+  <meta property="og:title" content="ดูดวงตามวันเกิด 🔮">
+  <meta property="og:description" content="เลือกวันเกิดเพื่อดูคำทำนาย 5 ด้าน พร้อมแชร์ลงโซเชียลได้ทันที">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="th_TH">
+  <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='16' fill='%23ee9ca7'/%3E%3Ctext x='50%' y='58%' dominant-baseline='middle' text-anchor='middle' font-size='72'%3E%F0%9F%94%AE%3C/text%3E%3C/svg%3E">
+
+  <!-- Favicon (อีโมจิคริสตัลบอล) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='24' fill='%23ff6699'/%3E%3Ctext x='50%25' y='66%25' text-anchor='middle' font-size='90'%3E%F0%9F%94%AE%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --bg: linear-gradient(to right, #ffdde1, #ee9ca7);
+      --card-bg: #ffffff;
+      --text: #333;
+      --muted: #666;
+      --primary: #ff6699;
+      --primary-2: #cc3366;
+      --shadow: 0 6px 18px rgba(0,0,0,0.18);
+    }
+    body.dark {
+      --bg: #0f1221;
+      --card-bg: #171a2b;
+      --text: #e6e8ef;
+      --muted: #aab0c0;
+      --primary: #7aa2ff;
+      --primary-2: #4a71d9;
+      --shadow: 0 8px 20px rgba(0,0,0,0.45);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 40px 20px;
+    }
+    header {
+      max-width: 980px;
+      margin: 0 auto 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .title-wrap {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo {
+      font-size: 36px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+    }
+    h1 {
+      margin: 0; font-size: 1.9rem; letter-spacing: .2px;
+    }
+    .lead {
+      margin: 2px 0 0 0; font-size: .98rem; color: var(--muted);
+    }
+    .theme-btn {
+      border: none; padding: 10px 14px; border-radius: 10px;
+      background: var(--primary); color: #fff; cursor: pointer; font-weight: 600;
+      box-shadow: var(--shadow); transition: transform .06s ease, background .2s ease;
+    }
+    .theme-btn:hover { background: var(--primary-2); }
+    .theme-btn:active { transform: translateY(1px); }
+
+    .panel {
+      max-width: 980px; margin: 0 auto;
+      background: var(--card-bg); border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .controls {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center;
+    }
+    input[type="date"] {
+      padding: 12px; border-radius: 10px; border: 1px solid #ddd; min-width: 210px;
+      background: transparent; color: var(--text);
+    }
+    .btn {
+      padding: 12px 16px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600;
+      background: var(--primary); color: white; box-shadow: var(--shadow);
+      transition: transform .06s ease, background .2s ease;
+    }
+    .btn:hover { background: var(--primary-2); }
+    .btn:active { transform: translateY(1px); }
+    .error {
+      display: none; margin-top: 10px; padding: 10px 14px; border-radius: 10px;
+      background: #ffe6ea; color: #7b1e1e;
+    }
+    body.dark .error { background: #3a1f27; color: #ffd8e0; }
+
+    #result {
+      display: none; margin-top: 16px; padding: 20px; border-radius: 16px; background: var(--card-bg);
+      box-shadow: var(--shadow); max-width: 980px; margin-left: auto; margin-right: auto;
+      animation: fadeIn .5s ease;
+    }
+    .result-head {
+      display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center;
+      border-bottom: 1px dashed rgba(0,0,0,.08); padding-bottom: 10px; margin-bottom: 12px;
+    }
+    .day-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 34px;
+      background: radial-gradient(circle at 30% 30%, #fff6, transparent 60%), var(--primary);
+      color: #fff; box-shadow: var(--shadow);
+    }
+    .result-title { margin: 0; font-size: 1.4rem; }
+    .weekday-note { margin: 0; color: var(--muted); font-size: .95rem; }
+    .grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px;
+    }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      padding: 14px; border-radius: 12px; background: rgba(0,0,0,.03);
+    }
+    body.dark .card { background: rgba(255,255,255,.05); }
+    .card h3 { margin: 0 0 6px 0; font-size: 1.05rem; }
+
+    .share {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px;
+    }
+    .share .btn { background: #00c300; }         /* LINE สี */
+    .share .btn.fb { background: #1877f2; }      /* Facebook สี */
+    .share .btn.native { background: var(--primary); }
+
+    footer { max-width: 980px; margin: 26px auto 0; text-align: center; color: var(--muted); font-size: .92rem; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-wrap">
+      <div class="logo">🔮</div>
+      <div>
+        <h1>ดูดวงตามวันเกิด</h1>
+        <p class="lead">เลือกวันเกิด → รับคำทำนาย 5 ด้าน และแชร์ให้เพื่อนดูได้เลย</p>
+      </div>
+    </div>
+    <button id="themeBtn" class="theme-btn" aria-label="Toggle dark/light">สลับโหมด</button>
+  </header>
+
+  <div class="panel">
+    <div class="controls">
+      <input type="date" id="birthday" aria-label="วันเกิด">
+      <button id="predictBtn" class="btn">ทำนายดวง</button>
+    </div>
+    <div id="error" class="error"></div>
+  </div>
+
+  <section id="result">
+    <div class="result-head">
+      <div class="day-icon" id="dayIcon">✨</div>
+      <div>
+        <h2 class="result-title" id="title">—</h2>
+        <p class="weekday-note" id="weekdayNote">—</p>
+        <div class="share">
+          <button class="btn native" id="shareNative">แชร์ (ระบบ)</button>
+          <button class="btn" id="shareLine">แชร์ LINE</button>
+          <button class="btn fb" id="shareFB">แชร์ Facebook</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>บุคลิกภาพ</h3>
+        <p id="p_person"></p>
+      </div>
+      <div class="card">
+        <h3>การงาน</h3>
+        <p id="p_work"></p>
+      </div>
+      <div class="card">
+        <h3>การเงิน</h3>
+        <p id="p_money"></p>
+      </div>
+      <div class="card">
+        <h3>ความรัก</h3>
+        <p id="p_love"></p>
+      </div>
+      <div class="card" style="grid-column: 1 / -1;">
+        <h3>สุขภาพ</h3>
+        <p id="p_health"></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 Horoscope Web — รองรับ Light/Dark, แชร์ LINE/FB ได้
+  </footer>
+
+  <script>
+    // ===== Theme Toggle =====
+    const themeBtn = document.getElementById('themeBtn');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      if (savedTheme === 'dark') document.body.classList.add('dark');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark');
+    }
+    themeBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // ===== Helpers =====
+    function parseLocalDate(iso) {
+      const parts = (iso || '').split('-').map(Number);
+      if (parts.length !== 3 || parts.some(isNaN)) return null;
+      const [y, m, d] = parts;
+      return new Date(y, m - 1, d);
+    }
+    function showError(msg) {
+      const el = document.getElementById('error');
+      el.textContent = msg; el.style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+    }
+    function clearError() {
+      const el = document.getElementById('error');
+      el.textContent = ''; el.style.display = 'none';
+    }
+
+    // ===== Data =====
+    const dayNames = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+    const dayIcons = {
+      'อาทิตย์': '🌞',
+      'จันทร์': '🌙',
+      'อังคาร': '🔥',
+      'พุธ': '🌿',
+      'พฤหัสบดี': '📘',
+      'ศุกร์': '🌟',
+      'เสาร์': '⚡'
+    };
+    const horoscope = {
+      'อาทิตย์': {
+        personality: 'มั่นใจ กล้าหาญ รักอิสระ มีภาวะผู้นำ',
+        work: 'เหมาะกับงานบริหาร การจัดการ หรืองานที่ได้เป็นหัวหน้า',
+        money: 'หาเงินเก่ง แต่ใช้เงินเก่ง ต้องระวังใช้จ่ายฟุ่มเฟือย',
+        love: 'มักดึงดูดคนรอบข้าง แต่ความรักจริงจังอาจไม่ค่อยมั่นคง',
+        health: 'เสี่ยงเรื่องความดันโลหิต และโรคเกี่ยวกับหัวใจ'
+      },
+      'จันทร์': {
+        personality: 'อารมณ์อ่อนไหว ขี้สงสาร มีเสน่ห์ทางคำพูด',
+        work: 'เหมาะกับงานบริการ งานสื่อสาร งานศิลป์',
+        money: 'เก็บเงินไม่ค่อยอยู่ แต่มีโชคจากผู้ใหญ่หรือคนช่วยเหลือ',
+        love: 'โรแมนติก ขี้น้อยใจ ต้องการความใส่ใจจากคู่',
+        health: 'ระวังระบบย่อยอาหาร และโรคกระเพาะ'
+      },
+      'อังคาร': {
+        personality: 'ใจร้อน กล้าหาญ มีพลังและความมุ่งมั่นสูง',
+        work: 'เด่นเรื่องงานที่ต้องใช้ความกล้า งานช่าง งานทหาร',
+        money: 'หาเงินเก่ง แต่ขาดการวางแผน ต้องระวังลงทุนเสี่ยง',
+        love: 'รักจริง แต่หึงแรง ต้องระวังอารมณ์',
+        health: 'ระวังอุบัติเหตุ หรือโรคเกี่ยวกับเลือด'
+      },
+      'พุธ': {
+        personality: 'ฉลาดรอบรู้ สื่อสารเก่ง ปรับตัวเก่ง',
+        work: 'เหมาะกับงานค้าขาย งานสื่อสาร งานออนไลน์',
+        money: 'รายรับเข้ามาหลายทาง แต่ก็ไหลออกไว ต้องมีวินัย',
+        love: 'มีเสน่ห์ คุยเก่ง มักมีคนเข้ามาชอบหลายคน',
+        health: 'ระวังความเครียดและระบบประสาท'
+      },
+      'พฤหัสบดี': {
+        personality: 'มีเมตตา รักความยุติธรรม มีความรู้ลึกซึ้ง',
+        work: 'เด่นด้านวิชาการ งานราชการ ครู อาจารย์',
+        money: 'มั่นคง แต่ไม่ค่อยหวือหวา เก็บเงินได้ดี',
+        love: 'จริงจัง มักได้คู่ที่เป็นกัลยาณมิตร หรืออายุมากกว่า',
+        health: 'ระวังโรคอ้วนและเบาหวาน'
+      },
+      'ศุกร์': {
+        personality: 'รักสวยรักงาม มีเสน่ห์ ชอบความบันเทิง',
+        work: 'เหมาะกับงานศิลปะ ดนตรี แฟชั่น และงานที่ต้องพบปะผู้คน',
+        money: 'หาเงินเก่ง แต่ชอบใช้กับความสุขส่วนตัว',
+        love: 'ขี้เหงา ต้องการความรักและการเอาใจใส่',
+        health: 'ระวังเกี่ยวกับโรคผิวหนัง และฮอร์โมน'
+      },
+      'เสาร์': {
+        personality: 'ขยัน อดทน มีความมุ่งมั่นจริงจัง',
+        work: 'เหมาะกับงานที่ต้องใช้ความรับผิดชอบสูง งานกฎหมาย วิศวกรรม',
+        money: 'เก็บเงินเก่ง แต่บางครั้งใช้ไปกับเรื่องครอบครัว',
+        love: 'จริงจัง แต่มักมีอุปสรรค ความรักไม่ค่อยราบรื่นนัก',
+        health: 'ระวังโรคเกี่ยวกับกระดูก และหลัง'
+      }
+    };
+
+    // ===== Predict & Render =====
+    function checkHoroscope() {
+      clearError();
+      const val = document.getElementById('birthday').value;
+      if (!val) return showError('กรุณาเลือกวันเกิดก่อน');
+      const dt = parseLocalDate(val);
+      if (!dt || isNaN(dt.getTime())) return showError('รูปแบบวันที่ไม่ถูกต้อง');
+
+      const dayName = dayNames[dt.getDay()];
+      const data = horoscope[dayName];
+      if (!data) return showError('ไม่พบคำทำนายของวันเกิดนี้');
+
+      // ตั้งค่า UI
+      document.getElementById('dayIcon').textContent = dayIcons[dayName] || '✨';
+      document.getElementById('title').textContent = `คุณเกิดวัน${dayName}`;
+      document.getElementById('weekdayNote').textContent = `(ระบบคำนวณได้ว่าเป็นวัน${dayName})`;
+      document.getElementById('p_person').textContent = data.personality;
+      document.getElementById('p_work').textContent = data.work;
+      document.getElementById('p_money').textContent = data.money;
+      document.getElementById('p_love').textContent = data.love;
+      document.getElementById('p_health').textContent = data.health;
+
+      const result = document.getElementById('result');
+      result.style.display = 'block';
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('predictBtn').addEventListener('click', checkHoroscope);
+
+    // ===== Share Buttons =====
+    function buildShareText() {
+      const title = document.getElementById('title').textContent || 'ดูดวงตามวันเกิด';
+      const person = document.getElementById('p_person').textContent;
+      return `${encodeURIComponent(title)}%0A${encodeURIComponent(person)}`;
+    }
+    document.getElementById('shareNative').addEventListener('click', async () => {
+      try {
+        const text = decodeURIComponent(buildShareText());
+        if (navigator.share) {
+          await navigator.share({ title: 'ดูดวงตามวันเกิด', text, url: location.href });
+        } else {
+          alert('เบราว์เซอร์นี้ไม่รองรับการแชร์แบบระบบ ปุ่ม LINE/FB ใช้งานได้ครับ');
+        }
+      } catch(e) {}
+    });
+    document.getElementById('shareLine').addEventListener('click', () => {
+      const u = encodeURIComponent(location.href);
+      const text = buildShareText();
+      const url = `https://line.me/R/msg/text/?${text}%0A${u}`;
+      window.open(url, '_blank');
+    });
+    document.getElementById('shareFB').addEventListener('click', () => {
+      const u = encodeURIComponent(location.href);
+      const url = `https://www.facebook.com/sharer/sharer.php?u=${u}`;
+      window.open(url, '_blank');
+    });
+  </script>
+</body>
+</html>
